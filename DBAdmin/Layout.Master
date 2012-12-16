@@ -1,6 +1,9 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Layout.master.cs" Inherits="DBAdmin.Layout" %><!DOCTYPE html>
 <head>
   <title>Hit List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An attempt to a fully automatic ASP.NET Create Read Update Delete control (more like page) for MS SQL.">
+  <meta name="author" content="William Turner">
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
@@ -9,6 +12,9 @@
   <script src="js/jquery.caret.min.js"></script>
   <script src="js/jquery.tablesorter.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
 </head>
 <body>
   <div class="container">
