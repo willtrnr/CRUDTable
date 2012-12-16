@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="TP1.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="Table.Global" Language="C#" %>

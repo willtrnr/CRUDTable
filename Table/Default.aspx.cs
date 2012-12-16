@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TP1
+namespace Table
 {
     public partial class Default : System.Web.UI.Page
     {

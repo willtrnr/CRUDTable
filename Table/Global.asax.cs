@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TP1
+namespace Table
 {
     public class Global : System.Web.HttpApplication
     {

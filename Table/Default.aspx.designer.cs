@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TP1 {
+namespace Table {
     
     
     public partial class Default {
