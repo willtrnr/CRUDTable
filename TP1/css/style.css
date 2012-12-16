@@ -1,0 +1,12 @@
+﻿.table td, .table th {
+  vertical-align: middle;
+}
+
+.table img {
+  max-width: 100px;
+  max-height: 100px;
+}
+
+.header-up .icon-chevron-down, .header-down .icon-chevron-up {
+  display: none;
+}

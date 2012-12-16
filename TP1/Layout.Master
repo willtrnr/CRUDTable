@@ -1,0 +1,17 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Layout.master.cs" Inherits="TP1.Layout" %><!DOCTYPE html>
+<head>
+  <title>Hit List</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery.form.js"></script>
+  <script src="js/jquery.caret.min.js"></script>
+  <script src="js/jquery.tablesorter.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+</head>
+<body>
+  <div class="container">
+<asp:ContentPlaceHolder ID="Container" runat="server"></asp:ContentPlaceHolder>
+  </div>
+</body>
