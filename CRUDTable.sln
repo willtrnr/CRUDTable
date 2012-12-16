@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Table", "TP1\Table.csproj", "{41B01661-4D42-4999-BD72-9AD1460D3115}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Table", "Table\Table.csproj", "{41B01661-4D42-4999-BD72-9AD1460D3115}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRUDTable", "CRUDTable\CRUDTable.csproj", "{E194A043-0CDD-4F54-AD11-6AD1EB446F40}"
 EndProject
