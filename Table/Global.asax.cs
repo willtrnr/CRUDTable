@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Table
+namespace DBAdmin
 {
     public class Global : System.Web.HttpApplication
     {

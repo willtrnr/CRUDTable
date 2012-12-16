@@ -249,27 +249,23 @@ namespace CRUDTable
             }
 
             using (SqlConnection conn = new SqlConnection(this.ConnectionString)) {
-                try {
-                    conn.Open();
-                    if (this.table == null) {
-                        // Fuck, threading...
-                        // TODO: Make this shit thread safe
-                        Table t = (Table)HttpContext.Current.Cache["CRUDTable_" + this.TableName];
-                        if (t != null) {
-                            this.table = t.Clone();
-                        } else {
-                            this.table = new Table(this.TableName);
-                            this.table.AnalyzeTable(conn);
-                            HttpContext.Current.Cache.Insert("CRUDTable_" + this.TableName, this.table, null, Cache.NoAbsoluteExpiration, TimeSpan.FromMinutes(10));
-                        }
-                    }
-                    if (HttpContext.Current.Request.QueryString["action"] != null || HttpContext.Current.Request.HttpMethod == "POST") {
-                        this.HandleRequest(conn);
+                conn.Open();
+                if (this.table == null) {
+                    // Fuck, threading...
+                    // TODO: Make this shit thread safe
+                    Table t = (Table)HttpContext.Current.Cache["CRUDTable_" + this.TableName];
+                    if (t != null) {
+                        this.table = t.Clone();
                     } else {
-                        this.table.Read(conn);
+                        this.table = new Table(this.TableName);
+                        this.table.AnalyzeTable(conn);
+                        HttpContext.Current.Cache.Insert("CRUDTable_" + this.TableName, this.table, null, Cache.NoAbsoluteExpiration, TimeSpan.FromMinutes(10));
                     }
-                } finally {
-                    conn.Close();
+                }
+                if (HttpContext.Current.Request.QueryString["action"] != null || HttpContext.Current.Request.HttpMethod == "POST") {
+                    this.HandleRequest(conn);
+                } else {
+                    this.table.Read(conn);
                 }
             }
         }

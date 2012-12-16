@@ -282,6 +282,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="conn">The connection.</param>
         /// <param name="forceanalyze">if set to <c>true</c> force the analysis of the table.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public bool Create(SqlConnection conn, bool forceanalyze = false)
         {
             if (forceanalyze || this.columns.Count == 0 || this.fields.Count == 0 || this.columns.Count != this.fields.Count) {
@@ -323,6 +324,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="conn">The connection.</param>
         /// <param name="forceanalyze">if set to <c>true</c> force the analysis of the table.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public void Read(SqlConnection conn, bool forceanalyze = false)
         {
             if (forceanalyze || this.columns.Count == 0 || this.fields.Count == 0 || this.columns.Count != this.fields.Count) {
@@ -346,6 +348,13 @@ namespace CRUDTable
             }
         }
 
+        /// <summary>
+        /// Reads one row matching the value of the fields.
+        /// </summary>
+        /// <param name="conn">The connection.</param>
+        /// <param name="forceanalyze">if set to <c>true</c> force the analysis of the table.</param>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public void ReadOne(SqlConnection conn, bool forceanalyze = false)
         {
             if (forceanalyze || this.columns.Count == 0 || this.fields.Count == 0 || this.columns.Count != this.fields.Count) {
@@ -385,6 +394,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="conn">The connection.</param>
         /// <param name="forceanalyze">if set to <c>true</c> force the analysis of the table.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public bool Update(SqlConnection conn, bool forceanalyze = false)
         {
             if (forceanalyze || this.columns.Count == 0 || this.fields.Count == 0 || this.columns.Count != this.fields.Count) {
@@ -429,6 +439,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="conn">The conn.</param>
         /// <param name="forceanalyze">if set to <c>true</c> force the analysis of the table.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public bool Delete(SqlConnection conn, bool forceanalyze = false)
         {
             if (forceanalyze || this.columns.Count == 0 || this.fields.Count == 0 || this.columns.Count != this.fields.Count) {

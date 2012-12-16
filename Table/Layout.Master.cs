@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Table
+namespace DBAdmin
 {
     public partial class Layout : System.Web.UI.MasterPage
     {

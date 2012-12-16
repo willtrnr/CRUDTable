@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Layout.master.cs" Inherits="Table.Layout" %><!DOCTYPE html>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Layout.master.cs" Inherits="DBAdmin.Layout" %><!DOCTYPE html>
 <head>
   <title>Hit List</title>
   <link href="css/bootstrap.min.css" rel="stylesheet" />

@@ -55,7 +55,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="info">The serialization info.</param>
         /// <param name="ctxt">The context.</param>
-        public DbFile(SerializationInfo info, StreamingContext ctxt)
+        protected DbFile(SerializationInfo info, StreamingContext ctxt)
         {
             this.Name = (string)info.GetValue("Name", typeof(string));
             this.MimeType = (string)info.GetValue("MimeType", typeof(string));
@@ -67,7 +67,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="info">The serialization info.</param>
         /// <param name="ctxt">The context.</param>
-        public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext ctxt)
         {
             info.AddValue("Name", this.Name);
             info.AddValue("MimeType", this.MimeType);

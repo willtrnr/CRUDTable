@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Table {
+namespace DBAdmin {
     
     
     public partial class Layout {

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Layout.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Table.Default" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Layout.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="DBAdmin.Default" %>
 <%@ Register Assembly="CRUDTable" Namespace="CRUDTable" TagPrefix="TP1" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="Container" runat="server">

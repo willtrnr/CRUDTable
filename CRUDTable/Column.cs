@@ -94,7 +94,7 @@ namespace CRUDTable
                 if (row < this.rows.Count) {
                     return this.rows[row];
                 } else {
-                    throw new IndexOutOfRangeException();
+                    return null;
                 }
             }
 

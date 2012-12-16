@@ -163,6 +163,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="conn">The connection.</param>
         /// <exception cref="System.Exception">No FK data is available, try setting `ForeignKey' and `ForeignTable' manually.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public void FetchOptions(SqlConnection conn)
         {
             if (this.ForeignKey == null || this.ForeignTable == null) {
