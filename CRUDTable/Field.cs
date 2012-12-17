@@ -115,9 +115,8 @@ namespace CRUDTable
         /// Initializes a new instance of the <see cref="Field" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
+        /// <param name="label">The label.</param>
         /// <param name="type">The type.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="required">if set to <c>true</c> the field is required.</param>
         public Field(string name, string label = null, FieldType type = FieldType.Text)
         {
             this.Name = name;
@@ -162,12 +161,12 @@ namespace CRUDTable
         /// Fetches the options.
         /// </summary>
         /// <param name="conn">The connection.</param>
-        /// <exception cref="System.Exception">No FK data is available, try setting `ForeignKey' and `ForeignTable' manually.</exception>
+        /// <exception cref="System.InvalidOperationException">No FK data is available, try setting `ForeignKey' and `ForeignTable' manually.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public void FetchOptions(SqlConnection conn)
         {
             if (this.ForeignKey == null || this.ForeignTable == null) {
-                throw new Exception("No FK data is available, try setting `ForeignKey' and `ForeignTable' manually.");
+                throw new InvalidOperationException("No FK data is available, try setting `ForeignKey' and `ForeignTable' manually.");
             }
             this.options.Clear();
             SqlCommand fk = conn.CreateCommand();

@@ -41,6 +41,10 @@ namespace CRUDTable
             this.MimeType = "application/octet-stream";
         }
 
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns></returns>
         public DbFile Clone()
         {
             DbFile f = new DbFile();

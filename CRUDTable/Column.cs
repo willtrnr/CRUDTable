@@ -131,6 +131,9 @@ namespace CRUDTable
             this.rows.Add(value);
         }
 
+        /// <summary>
+        /// Clears this instance.
+        /// </summary>
         public void Clear()
         {
             this.rows.Clear();
@@ -197,6 +200,7 @@ namespace CRUDTable
         /// </summary>
         /// <param name="output">The output.</param>
         /// <param name="row">The row.</param>
+        /// <exception cref="System.IndexOutOfRangeException"></exception>
         public void RenderCell(HtmlTextWriter output, int row)
         {
             if (row < this.rows.Count) {

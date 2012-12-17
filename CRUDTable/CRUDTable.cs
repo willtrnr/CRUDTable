@@ -119,11 +119,11 @@ namespace CRUDTable
         /// Handles the request.
         /// </summary>
         /// <param name="conn">The connection.</param>
-        /// <exception cref="System.Exception">No DB connection information is available. Try setting `Connection' or `ConnectionString'.</exception>
+        /// <exception cref="System.InvalidOperationException">No table name is available. Try setting `TableName'.</exception>
         protected void HandleRequest(SqlConnection conn)
         {
             if (this.TableName == null) {
-                throw new Exception("No table name is available. Try setting `TableName'.");
+                throw new InvalidOperationException("No table name is available. Try setting `TableName'.");
             }
 
             foreach (string key in this.table.Keys) {
@@ -234,7 +234,7 @@ namespace CRUDTable
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
-        /// <exception cref="System.Exception">No DB connection information is available. Try setting `Connection' or `ConnectionString'.</exception>
+        /// <exception cref="System.InvalidOperationException">No DB connection information is available. Try setting `Connection' or `ConnectionString'.</exception>
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -242,10 +242,10 @@ namespace CRUDTable
             this.EnableViewState = false;
 
             if (this.ConnectionString == null) {
-                throw new Exception("No DB connection information is available. Try setting `Connection' or `ConnectionString'.");
+                throw new InvalidOperationException("No DB connection information is available. Try setting `Connection' or `ConnectionString'.");
             }
             if (this.TableName == null) {
-                throw new Exception("No table name is available. Try setting `TableName'.");
+                throw new InvalidOperationException("No table name is available. Try setting `TableName'.");
             }
 
             using (SqlConnection conn = new SqlConnection(this.ConnectionString)) {
