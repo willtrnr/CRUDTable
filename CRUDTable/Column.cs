@@ -244,6 +244,17 @@ namespace CRUDTable
         }
 
         /// <summary>
+        /// Renders the template cell.
+        /// </summary>
+        /// <param name="output">The output.</param>
+        public void RenderTemplateCell(HtmlTextWriter output)
+        {
+            output.RenderBeginTag((this.PrimaryKey) ? HtmlTextWriterTag.Th : HtmlTextWriterTag.Td);
+            output.WriteEncodedText("${" + this.Name + "}");
+            output.RenderEndTag();
+        }
+
+        /// <summary>
         /// Gets the db file.
         /// </summary>
         /// <param name="row">The row.</param>

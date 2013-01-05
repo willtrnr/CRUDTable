@@ -1,4 +1,6 @@
-﻿$("form").ajaxForm({
+﻿$("#row-template").template('rowTemplate');
+
+$("form").ajaxForm({
   beforeSubmit: function (arr, form, options) {
     if ($(form).attr("data-validate") && !formValidate(form)) return false;
     $("#update-modal, #delete-modal").modal('hide');

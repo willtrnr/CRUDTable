@@ -48,6 +48,15 @@
     <Compile Include="CRUDTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Table.cs" />
+    <Compile Include="Validators\AlNumValidator.cs" />
+    <Compile Include="Validators\AlphaSpValidator.cs" />
+    <Compile Include="Validators\AlphaValidator.cs" />
+    <Compile Include="Validators\AlNumSpValidator.cs" />
+    <Compile Include="Validators\DateValidator.cs" />
+    <Compile Include="Validators\DecValidator.cs" />
+    <Compile Include="Validators\IValidator.cs" />
+    <Compile Include="Validators\NotNullValidator.cs" />
+    <Compile Include="Validators\NumValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

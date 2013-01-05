@@ -17,19 +17,19 @@ function validateDec(dirty) {
 }
 
 function validateAlpha(dirty) {
-  return (/^[a-zA-Z]+$/.test(dirty));
+  return (/^[A-Za-z]+$/.test(dirty));
 }
 
 function validateAlphaSp(dirty) {
-  return (/^[a-zA-Z\-\.,' ]+$/.test(dirty));
+  return (/^[A-Za-z\-\.,' ]+$/.test(dirty));
 }
 
 function validateAlNum(dirty) {
-  return (/^[a-zA-Z\d]+$/.test(dirty));
+  return (/^[A-Za-z\d]+$/.test(dirty));
 }
 
 function validateAlNumSp(dirty) {
-  return (/^[a-zA-Z\d\-\.,' ]+$/.test(dirty));
+  return (/^[A-Za-z\d\-\.,' ]+$/.test(dirty));
 }
 
 function validateDate(dirty) {

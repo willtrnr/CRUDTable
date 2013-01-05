@@ -112,6 +112,11 @@ namespace CRUDTable
         protected List<string> options = new List<string>();
 
         /// <summary>
+        /// The validators
+        /// </summary>
+        protected List<Validators.IValidator> validators = new List<Validators.IValidator>();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Field" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -141,6 +146,9 @@ namespace CRUDTable
             f.ForeignTable = this.ForeignTable;
             foreach (string o in this.options) {
                 f.AddOption(o);
+            }
+            foreach (Validators.IValidator v in this.validators) {
+                f.AddValidator(v);
             }
             return f;
         }
@@ -176,6 +184,31 @@ namespace CRUDTable
                     this.AddOption((string)fkResults[this.ForeignKey]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds the validator.
+        /// </summary>
+        /// <param name="validator">The validator.</param>
+        public void AddValidator(Validators.IValidator validator)
+        {
+            if (validator != null) {
+                this.validators.Add(validator);
+            }
+        }
+
+        /// <summary>
+        /// Validates this instance.
+        /// </summary>
+        /// <returns></returns>
+        public bool Validate()
+        {
+            foreach (Validators.IValidator validator in this.validators) {
+                if (!validator.Validate(this.Value.ToString())) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>

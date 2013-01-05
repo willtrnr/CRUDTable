@@ -139,13 +139,17 @@ namespace CRUDTable
                 }
 
                 if (HttpContext.Current.Request.Files[key] != null) {
-                    string path = Path.GetTempFileName();
-                    HttpContext.Current.Request.Files[key].SaveAs(path);
-
                     DbFile file = new DbFile();
                     file.Name = HttpContext.Current.Request.Files[key].FileName;
                     file.MimeType = HttpContext.Current.Request.Files[key].ContentType;
-                    file.Data = File.ReadAllBytes(path);
+                    using (MemoryStream s = new MemoryStream()) {
+                        int read = 0;
+                        byte[] buffer = new byte[2048];
+                        while ((read = HttpContext.Current.Request.Files[key].InputStream.Read(buffer, 0, 2048)) > 0) {
+                            s.Write(buffer, 0, read);
+                        }
+                        file.Data = s.ToArray();
+                    }
 
                     using (MemoryStream s = new MemoryStream()) {
                         BinaryFormatter bf = new BinaryFormatter();
@@ -160,6 +164,7 @@ namespace CRUDTable
                     }
                 }
             }
+
             switch (HttpContext.Current.Request.QueryString["action"]) {
                 case "create":
                     HttpContext.Current.Response.StatusCode = (this.table.Create(conn)) ? 200 : 500;
@@ -289,20 +294,8 @@ namespace CRUDTable
             output.RenderBeginTag(HtmlTextWriterTag.Div);
             output.AddAttribute("class", "span" + this.SpanSize.ToString(), false);
             output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("class", "page-header");
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.RenderBeginTag(HtmlTextWriterTag.H1);
-            output.WriteEncodedText(char.ToUpper(this.TableName[0]) + this.TableName.Substring(1));
-            output.RenderEndTag(); // h1
-            output.RenderEndTag(); // div.page-header
-            output.RenderEndTag(); // div.span12
-            output.RenderEndTag(); // div.row
 
-            output.AddAttribute("class", "row", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("class", "span" + this.SpanSize.ToString(), false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-
+            output.AddAttribute("id", "crud-table");
             output.AddAttribute("class", "table table-bordered table-striped table-hover tablesorter", false);
             output.RenderBeginTag(HtmlTextWriterTag.Table);
 
@@ -320,6 +313,13 @@ namespace CRUDTable
             output.RenderEndTag(); // thead
 
             for (int i = 0; i < this.table.Count; ++i) {
+                if (this.table.HasPrimaryKeys()) {
+                    string id = "row";
+                    foreach (string key in this.table.PrimaryKeys) {
+                        id += "-" + this.table[key].ToString(i);
+                    }
+                    output.AddAttribute("id", id);
+                }
                 output.RenderBeginTag(HtmlTextWriterTag.Tr);
 
                 foreach (string col in this.table.Keys) {
@@ -328,24 +328,26 @@ namespace CRUDTable
 
                 output.RenderBeginTag(HtmlTextWriterTag.Td);
 
-                output.AddAttribute("type", "button", false);
-                output.AddAttribute("class", "update-btn btn btn-mini", false);
-                output.RenderBeginTag(HtmlTextWriterTag.Button);
-                output.AddAttribute("class", "icon-edit", false);
-                output.RenderBeginTag(HtmlTextWriterTag.I);
-                output.RenderEndTag(); // i
-                output.RenderEndTag(); // button
-                output.WriteEncodedText(" ");
-                output.AddAttribute("type", "button", false);
-                output.AddAttribute("class", "delete-btn btn btn-mini btn-danger", false);
-                foreach (string key in this.table.PrimaryKeys) {
-                    output.AddAttribute("data-" + key, this.table[key].ToString(i), true);
+                if (this.table.HasPrimaryKeys()) {
+                    output.AddAttribute("type", "button", false);
+                    output.AddAttribute("class", "update-btn btn btn-mini", false);
+                    output.RenderBeginTag(HtmlTextWriterTag.Button);
+                    output.AddAttribute("class", "icon-edit", false);
+                    output.RenderBeginTag(HtmlTextWriterTag.I);
+                    output.RenderEndTag(); // i
+                    output.RenderEndTag(); // button
+                    output.WriteEncodedText(" ");
+                    output.AddAttribute("type", "button", false);
+                    output.AddAttribute("class", "delete-btn btn btn-mini btn-danger", false);
+                    foreach (string key in this.table.PrimaryKeys) {
+                        output.AddAttribute("data-" + key, this.table[key].ToString(i), true);
+                    }
+                    output.RenderBeginTag(HtmlTextWriterTag.Button);
+                    output.AddAttribute("class", "icon-remove icon-white", false);
+                    output.RenderBeginTag(HtmlTextWriterTag.I);
+                    output.RenderEndTag(); // i
+                    output.RenderEndTag(); // button
                 }
-                output.RenderBeginTag(HtmlTextWriterTag.Button);
-                output.AddAttribute("class", "icon-remove icon-white", false);
-                output.RenderBeginTag(HtmlTextWriterTag.I);
-                output.RenderEndTag(); // i
-                output.RenderEndTag(); // button
 
                 output.RenderEndTag(); // td
                 output.RenderEndTag(); // tr
@@ -413,155 +415,157 @@ namespace CRUDTable
             output.RenderEndTag(); // fieldset
             output.RenderEndTag(); // form
 
-            // UPDATE MODAL
-            output.AddAttribute("id", "update-modal", false);
-            output.AddAttribute("class", "modal hide fade", false);
-            output.AddAttribute("tabindex", "-1", false);
-            output.AddAttribute("role", "dialog", false);
-            output.AddAttribute("aria-labelledby", "update-modal-label", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
+            if (this.table.HasPrimaryKeys()) {
+                // UPDATE MODAL
+                output.AddAttribute("id", "update-modal", false);
+                output.AddAttribute("class", "modal hide fade", false);
+                output.AddAttribute("tabindex", "-1", false);
+                output.AddAttribute("role", "dialog", false);
+                output.AddAttribute("aria-labelledby", "update-modal-label", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
 
-            output.AddAttribute("id", "update-form", false);
-            output.AddAttribute("action", "?action=update", false);
-            output.AddAttribute("method", "post", false);
-            output.AddAttribute("enctype", "multipart/form-data", false);
-            output.AddAttribute("class", "form-horizontal", false);
-            output.AddAttribute("data-validate", "form bootstrap", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Form);
+                output.AddAttribute("id", "update-form", false);
+                output.AddAttribute("action", "?action=update", false);
+                output.AddAttribute("method", "post", false);
+                output.AddAttribute("enctype", "multipart/form-data", false);
+                output.AddAttribute("class", "form-horizontal", false);
+                output.AddAttribute("data-validate", "form bootstrap", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Form);
 
-            output.AddAttribute("class", "modal-header", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("type", "button", false);
-            output.AddAttribute("class", "close", false);
-            output.AddAttribute("data-dismiss", "modal", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.WriteEncodedText("x");
-            output.RenderEndTag(); // button.close
-            output.AddAttribute("id", "update-modal-label", false);
-            output.RenderBeginTag(HtmlTextWriterTag.H3);
-            output.WriteEncodedText("Update record");
-            output.RenderEndTag(); // h3#update-modal-label
-            output.RenderEndTag(); // div.modal-header
+                output.AddAttribute("class", "modal-header", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "close", false);
+                output.AddAttribute("data-dismiss", "modal", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.WriteEncodedText("x");
+                output.RenderEndTag(); // button.close
+                output.AddAttribute("id", "update-modal-label", false);
+                output.RenderBeginTag(HtmlTextWriterTag.H3);
+                output.WriteEncodedText("Update record");
+                output.RenderEndTag(); // h3#update-modal-label
+                output.RenderEndTag(); // div.modal-header
 
-            output.AddAttribute("class", "modal-body", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.AddAttribute("class", "modal-body", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
 
-            foreach (string col in this.table.Keys) {
-                Field f = this.table.GetField(col);
-                if (f.ReadOnly) {
-                    f.RenderField(output, "update", Field.FieldType.Hidden, true);
-                } else {
-                    output.AddAttribute("class", "control-group", false);
-                    output.RenderBeginTag(HtmlTextWriterTag.Div);
-                    f.RenderLabel(output, "update");
-                    output.AddAttribute("class", "controls", false);
-                    output.RenderBeginTag(HtmlTextWriterTag.Div);
-                    f.RenderField(output, "update", Field.FieldType.None, true);
-                    output.RenderEndTag(); // div.controls
-                    output.RenderEndTag(); // div.control-group
+                foreach (string col in this.table.Keys) {
+                    Field f = this.table.GetField(col);
+                    if (f.ReadOnly) {
+                        f.RenderField(output, "update", Field.FieldType.Hidden, true);
+                    } else {
+                        output.AddAttribute("class", "control-group", false);
+                        output.RenderBeginTag(HtmlTextWriterTag.Div);
+                        f.RenderLabel(output, "update");
+                        output.AddAttribute("class", "controls", false);
+                        output.RenderBeginTag(HtmlTextWriterTag.Div);
+                        f.RenderField(output, "update", Field.FieldType.None, true);
+                        output.RenderEndTag(); // div.controls
+                        output.RenderEndTag(); // div.control-group
+                    }
                 }
+
+                output.RenderEndTag(); // div.modal-body
+
+                output.AddAttribute("class", "modal-footer");
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.AddAttribute("type", "submit", false);
+                output.AddAttribute("class", "btn btn-primary", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.AddAttribute("class", "icon-edit icon-white", false);
+                output.RenderBeginTag(HtmlTextWriterTag.I);
+                output.RenderEndTag(); // i
+                output.WriteEncodedText(" Save record");
+                output.RenderEndTag(); // button.btn
+                output.WriteEncodedText(" ");
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "btn", false);
+                output.AddAttribute("data-dismiss", "modal", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.WriteEncodedText("Cancel");
+                output.RenderEndTag(); // button.btn
+                output.RenderEndTag(); // div.modal-footer
+
+                output.RenderEndTag(); // form
+                output.RenderEndTag(); // div#update-modal
+                // END
+
+                // DELETE MODAL
+                output.AddAttribute("id", "delete-modal", false);
+                output.AddAttribute("class", "modal hide fade", false);
+                output.AddAttribute("tabindex", "-1", false);
+                output.AddAttribute("role", "dialog", false);
+                output.AddAttribute("aria-labelledby", "delete-modal-label", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+
+                output.AddAttribute("id", "delete-form", false);
+                output.AddAttribute("action", "?action=delete", false);
+                output.AddAttribute("method", "post", false);
+                output.AddAttribute("enctype", "multipart/form-data", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Form);
+
+                output.AddAttribute("class", "modal-header", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "close", false);
+                output.AddAttribute("data-dismiss", "modal", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.WriteEncodedText("x");
+                output.RenderEndTag(); // button.close
+                output.AddAttribute("id", "delete-modal-label", false);
+                output.RenderBeginTag(HtmlTextWriterTag.H3);
+                output.WriteEncodedText("Delete record");
+                output.RenderEndTag(); // h3#delete-modal-label
+                output.RenderEndTag(); // div.modal-header
+
+                output.AddAttribute("class", "modal-body", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.RenderBeginTag(HtmlTextWriterTag.P);
+                output.WriteEncodedText("Do you really want to delete this record?");
+                output.RenderEndTag(); // p
+                output.AddAttribute("id", "delete-modal-table", false);
+                output.AddAttribute("class", "table table-bordered table-striped", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Table);
+                foreach (string col in this.table.Keys) {
+                    output.RenderBeginTag(HtmlTextWriterTag.Tr);
+                    this.table[col].RenderHeaderCell(output);
+                    output.RenderEndTag(); // tr
+                }
+                output.RenderEndTag(); // table#delete-modal-table
+                foreach (string pk in this.table.PrimaryKeys) {
+                    this.table.GetField(pk).RenderField(output, "delete", Field.FieldType.Hidden);
+                }
+                output.RenderEndTag(); // div.modal-body
+
+                output.AddAttribute("class", "modal-footer");
+                output.RenderBeginTag(HtmlTextWriterTag.Div);
+                output.AddAttribute("type", "submit", false);
+                output.AddAttribute("class", "btn btn-danger", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.AddAttribute("class", "icon-remove icon-white", false);
+                output.RenderBeginTag(HtmlTextWriterTag.I);
+                output.RenderEndTag(); // i
+                output.WriteEncodedText(" Delete record");
+                output.RenderEndTag(); // button.btn
+                output.WriteEncodedText(" ");
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "btn", false);
+                output.AddAttribute("data-dismiss", "modal", false);
+                output.AddAttribute("aria-hidden", "true", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.WriteEncodedText("Cancel");
+                output.RenderEndTag(); // button.btn
+                output.RenderEndTag(); // div.modal-footer
+
+                output.RenderEndTag(); // form
+                output.RenderEndTag(); // div#delete-modal
+                // END
             }
-
-            output.RenderEndTag(); // div.modal-body
-
-            output.AddAttribute("class", "modal-footer");
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("type", "submit", false);
-            output.AddAttribute("class", "btn btn-primary", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.AddAttribute("class", "icon-edit icon-white", false);
-            output.RenderBeginTag(HtmlTextWriterTag.I);
-            output.RenderEndTag(); // i
-            output.WriteEncodedText(" Save record");
-            output.RenderEndTag(); // button.btn
-            output.WriteEncodedText(" ");
-            output.AddAttribute("type", "button", false);
-            output.AddAttribute("class", "btn", false);
-            output.AddAttribute("data-dismiss", "modal", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.WriteEncodedText("Cancel");
-            output.RenderEndTag(); // button.btn
-            output.RenderEndTag(); // div.modal-footer
-
-            output.RenderEndTag(); // form
-            output.RenderEndTag(); // div#update-modal
-            // END
-
-            // DELETE MODAL
-            output.AddAttribute("id", "delete-modal", false);
-            output.AddAttribute("class", "modal hide fade", false);
-            output.AddAttribute("tabindex", "-1", false);
-            output.AddAttribute("role", "dialog", false);
-            output.AddAttribute("aria-labelledby", "delete-modal-label", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-
-            output.AddAttribute("id", "delete-form", false);
-            output.AddAttribute("action", "?action=delete", false);
-            output.AddAttribute("method", "post", false);
-            output.AddAttribute("enctype", "multipart/form-data", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Form);
-
-            output.AddAttribute("class", "modal-header", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("type", "button", false);
-            output.AddAttribute("class", "close", false);
-            output.AddAttribute("data-dismiss", "modal", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.WriteEncodedText("x");
-            output.RenderEndTag(); // button.close
-            output.AddAttribute("id", "delete-modal-label", false);
-            output.RenderBeginTag(HtmlTextWriterTag.H3);
-            output.WriteEncodedText("Delete record");
-            output.RenderEndTag(); // h3#delete-modal-label
-            output.RenderEndTag(); // div.modal-header
-
-            output.AddAttribute("class", "modal-body", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.RenderBeginTag(HtmlTextWriterTag.P);
-            output.WriteEncodedText("Do you really want to delete this record?");
-            output.RenderEndTag(); // p
-            output.AddAttribute("id", "delete-modal-table", false);
-            output.AddAttribute("class", "table table-bordered table-striped", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Table);
-            foreach (string col in this.table.Keys) {
-                output.RenderBeginTag(HtmlTextWriterTag.Tr);
-                this.table[col].RenderHeaderCell(output);
-                output.RenderEndTag(); // tr
-            }
-            output.RenderEndTag(); // table#delete-modal-table
-            foreach (string pk in this.table.PrimaryKeys) {
-                this.table.GetField(pk).RenderField(output, "delete", Field.FieldType.Hidden);
-            }
-            output.RenderEndTag(); // div.modal-body
-
-            output.AddAttribute("class", "modal-footer");
-            output.RenderBeginTag(HtmlTextWriterTag.Div);
-            output.AddAttribute("type", "submit", false);
-            output.AddAttribute("class", "btn btn-danger", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.AddAttribute("class", "icon-remove icon-white", false);
-            output.RenderBeginTag(HtmlTextWriterTag.I);
-            output.RenderEndTag(); // i
-            output.WriteEncodedText(" Delete record");
-            output.RenderEndTag(); // button.btn
-            output.WriteEncodedText(" ");
-            output.AddAttribute("type", "button", false);
-            output.AddAttribute("class", "btn", false);
-            output.AddAttribute("data-dismiss", "modal", false);
-            output.AddAttribute("aria-hidden", "true", false);
-            output.RenderBeginTag(HtmlTextWriterTag.Button);
-            output.WriteEncodedText("Cancel");
-            output.RenderEndTag(); // button.btn
-            output.RenderEndTag(); // div.modal-footer
-
-            output.RenderEndTag(); // form
-            output.RenderEndTag(); // div#delete-modal
-            // END
 
             // UPLOAD MODAL
             output.AddAttribute("id", "upload-modal", false);
@@ -690,6 +694,49 @@ namespace CRUDTable
 
             output.RenderEndTag(); // div.span12
             output.RenderEndTag(); // div.row
+
+            // JQUERY ROW TEMPLATE
+            output.AddAttribute("id", "row-template", false);
+            output.AddAttribute("type", "text/x-jquery-tmpl", false);
+            output.RenderBeginTag(HtmlTextWriterTag.Script);
+
+            if (this.table.HasPrimaryKeys()) {
+                string id = "row";
+                foreach (string key in this.table.PrimaryKeys) {
+                    id += "-${" + key + "}";
+                }
+                output.AddAttribute("id", id);
+            }
+            output.RenderBeginTag(HtmlTextWriterTag.Tr);
+            foreach (string col in this.table.Keys) {
+                this.table[col].RenderTemplateCell(output);
+            }
+            output.RenderBeginTag(HtmlTextWriterTag.Td);
+            if (this.table.HasPrimaryKeys()) {
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "update-btn btn btn-mini", false);
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.AddAttribute("class", "icon-edit", false);
+                output.RenderBeginTag(HtmlTextWriterTag.I);
+                output.RenderEndTag(); // i
+                output.RenderEndTag(); // button
+                output.WriteEncodedText(" ");
+                output.AddAttribute("type", "button", false);
+                output.AddAttribute("class", "delete-btn btn btn-mini btn-danger", false);
+                foreach (string key in this.table.PrimaryKeys) {
+                    output.AddAttribute("data-" + key, "${" + key + "}", false);
+                }
+                output.RenderBeginTag(HtmlTextWriterTag.Button);
+                output.AddAttribute("class", "icon-remove icon-white", false);
+                output.RenderBeginTag(HtmlTextWriterTag.I);
+                output.RenderEndTag(); // i
+                output.RenderEndTag(); // button
+            }
+            output.RenderEndTag(); // td
+            output.RenderEndTag(); // tr
+
+            output.RenderEndTag(); // script#row-template
+            // END
 
             output.AddAttribute("src", "js/validate.js", false);
             output.RenderBeginTag(HtmlTextWriterTag.Script);

@@ -146,6 +146,17 @@ namespace CRUDTable
         }
 
         /// <summary>
+        /// Determines whether the table has primary keys.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if the table has primary keys; otherwise, <c>false</c>.
+        /// </returns>
+        public bool HasPrimaryKeys()
+        {
+            return this.primaryKeys.Count > 0;
+        }
+
+        /// <summary>
         /// Gets the field.
         /// </summary>
         /// <param name="column">The column.</param>
@@ -188,6 +199,7 @@ namespace CRUDTable
                         case "int":
                             f.Type = Field.FieldType.Number;
                             f.DataType = SqlDbType.Int;
+                            f.AddValidator(new Validators.NumValidator());
                             c.Type = Column.ColumnType.Int;
                             break;
                         case "numeric":
@@ -195,6 +207,7 @@ namespace CRUDTable
                             f.DataType = SqlDbType.Decimal;
                             f.Precision = byte.Parse(((string)results["Prec"]).Trim());
                             f.Scale = byte.Parse(((string)results["Scale"]).Trim());
+                            f.AddValidator(new Validators.DecValidator());
                             c.Type = Column.ColumnType.Numeric;
                             break;
                         case "text":
@@ -205,6 +218,7 @@ namespace CRUDTable
                         case "date":
                             f.Type = Field.FieldType.Date;
                             f.DataType = SqlDbType.Date;
+                            f.AddValidator(new Validators.DateValidator());
                             c.Type = Column.ColumnType.Date;
                             break;
                         case "datetime":
@@ -226,6 +240,7 @@ namespace CRUDTable
                     }
                     f.MaxLength = (int)results["Length"];
                     f.Required = ((string)results["Nullable"] == "no");
+                    if (f.Required) f.AddValidator(new Validators.NotNullValidator());
                     this.fields.Add((string)results["Column_name"], f);
                     this.columns.Add((string)results["Column_name"], c);
                 }
@@ -304,6 +319,7 @@ namespace CRUDTable
                 cmd.CommandText = cmd.CommandText.Substring(0, cmd.CommandText.Length - 2) + ") VALUES (";
                 foreach (string key in this.Keys) {
                     Field f = this.fields[key];
+                    if (!f.Validate()) return false;
                     if (!f.ReadOnly) {
                         cmd.CommandText += "@" + key + ", ";
                         SqlParameter param = new SqlParameter("@" + key, f.DataType, f.MaxLength);
@@ -424,6 +440,7 @@ namespace CRUDTable
                 cmd.CommandText = cmd.CommandText.Substring(0, cmd.CommandText.Length - 2) + " WHERE ";
                 foreach (string key in this.primaryKeys) {
                     Field f = this.fields[key];
+                    if (!f.Validate()) return false;
                     cmd.CommandText += key + "=@pk_" + key + " AND ";
                     SqlParameter param = new SqlParameter("@pk_" + key, f.DataType, f.MaxLength);
                     param.Precision = f.Precision;

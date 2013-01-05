@@ -81,6 +81,8 @@
     <Content Include="js\jquery.min.js" />
     <Content Include="js\jquery.tablesorter.js" />
     <Content Include="js\jquery.tablesorter.min.js" />
+    <Content Include="js\jquery.tmpl.js" />
+    <Content Include="js\jquery.tmpl.min.js" />
     <Content Include="js\validate.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
