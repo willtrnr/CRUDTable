@@ -181,7 +181,7 @@ namespace CRUDTable
             fk.CommandText = "SELECT * FROM " + this.ForeignTable;
             using (SqlDataReader fkResults = fk.ExecuteReader()) {
                 while (fkResults.Read()) {
-                    this.AddOption((string)fkResults[this.ForeignKey]);
+                    this.AddOption(fkResults[this.ForeignKey].ToString());
                 }
             }
         }

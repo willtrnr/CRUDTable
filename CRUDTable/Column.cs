@@ -150,17 +150,17 @@ namespace CRUDTable
         public string ToString(int row)
         {
             if (row < this.rows.Count) {
-                switch (this.Type) {
-                    case ColumnType.Int:
-                        return ((int)this.rows[row]).ToString();
-                    case ColumnType.Numeric:
-                        return ((decimal)this.rows[row]).ToString();
-                    case ColumnType.Date:
-                        return ((DateTime)this.rows[row]).ToString("yyyy-MM-dd");
-                    case ColumnType.DateTime:
-                        return ((DateTime)this.rows[row]).ToString("yyyy-MM-dd HH:mm:ss");
-                    case ColumnType.File:
-                        if (this.rows[row] != null && this.rows[row] != DBNull.Value) {
+                if (this.rows[row] != null && this.rows[row] != DBNull.Value) {
+                    switch (this.Type) {
+                        case ColumnType.Int:
+                            return ((int)this.rows[row]).ToString();
+                        case ColumnType.Numeric:
+                            return ((decimal)this.rows[row]).ToString();
+                        case ColumnType.Date:
+                            return ((DateTime)this.rows[row]).ToString("yyyy-MM-dd");
+                        case ColumnType.DateTime:
+                            return ((DateTime)this.rows[row]).ToString("yyyy-MM-dd HH:mm:ss");
+                        case ColumnType.File:
                             using (MemoryStream s = new MemoryStream()) {
                                 try {
                                     s.Write((byte[])this.rows[row], 0, ((byte[])this.rows[row]).Length);
@@ -172,12 +172,12 @@ namespace CRUDTable
                                     return ex.Message;
                                 }
                             }
-                        } else {
-                            return "";
-                        }
-                    case ColumnType.Text:
-                    default:
-                        return this.rows[row].ToString();
+                        case ColumnType.Text:
+                        default:
+                            return this.rows[row].ToString();
+                    }
+                } else {
+                    return "";
                 }
             } else {
                 throw new IndexOutOfRangeException();
